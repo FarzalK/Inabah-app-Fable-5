@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
+import Disclaimer from "@/components/Disclaimer";
 import { Label } from "@/components/ui";
 import { getSessions } from "@/lib/storage";
 import { getMuraqabahSessions } from "@/lib/muraqabah-storage";
@@ -117,6 +118,12 @@ export default function SettingsPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* About */}
+      <div className="rounded-xl p-5" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
+        <Label>About Inābah</Label>
+        <Disclaimer className="text-[13px] leading-relaxed" />
       </div>
     </div>
   );

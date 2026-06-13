@@ -164,7 +164,7 @@ function SliderQuestion({
 
       {/* Optional text */}
       <div>
-        <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>
+        <label className="block text-xs mb-2" style={{ color: "var(--text-tertiary)" }}>
           Anything you&apos;d like to add? <span className="italic">(optional)</span>
         </label>
         <textarea
@@ -174,7 +174,7 @@ function SliderQuestion({
           placeholder="Share more if you'd like…"
           className="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none"
           style={{
-            background: "var(--bg-main)",
+            background: "var(--surface-bg)",
             border: "1px solid var(--border)",
             color: "var(--text-primary)",
           }}
@@ -311,13 +311,13 @@ export default function OnboardingClient() {
   // ── Intro screen ─────────────────────────────────────────────────────────
   if (screen === "intro") {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--bg-main)" }}>
+      <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--surface-bg)" }}>
         <div className="w-full max-w-lg">
-          <div className="rounded-2xl p-8 md:p-10 space-y-6" style={{ background: "var(--card-bg)", border: "1px solid var(--border)" }}>
+          <div className="rounded-2xl p-8 md:p-10 space-y-6" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
 
             <div className="text-center space-y-1">
               <p className="text-2xl" style={{ color: "var(--accent)" }}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>In the name of Allah, the Most Gracious, the Most Merciful</p>
+              <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>In the name of Allah, the Most Gracious, the Most Merciful</p>
             </div>
 
             <div className="space-y-4 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
@@ -325,16 +325,16 @@ export default function OnboardingClient() {
                 Before you begin, we will ask you a few honest questions about where you are right now in your spiritual life.
               </p>
 
-              <div className="rounded-xl p-4 space-y-2" style={{ background: "var(--bg-main)", borderLeft: "3px solid var(--accent)" }}>
+              <div className="rounded-xl p-4 space-y-2" style={{ background: "var(--surface-bg)", borderLeft: "3px solid var(--accent)" }}>
                 <p className="text-base font-medium" style={{ color: "var(--text-primary)" }}>
                   &ldquo;O believers! Be mindful of Allah and let every soul look to what ˹deeds˺ it has sent forth for tomorrow.&rdquo;
                 </p>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>— Al-Hashr 59:18 · The Clear Quran (Dr. Mustafa Khattab)</p>
+                <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>— Al-Hashr 59:18 · The Clear Quran (Dr. Mustafa Khattab)</p>
               </div>
 
               <p>
                 The Prophet ﷺ said: <span className="italic">&ldquo;The intelligent person is the one who takes account of himself and works for what comes after death.&rdquo;</span>
-                <span className="block mt-1 text-xs" style={{ color: "var(--text-muted)" }}>— Narrated by Shaddad ibn Aws, Tirmidhi</span>
+                <span className="block mt-1 text-xs" style={{ color: "var(--text-tertiary)" }}>— Narrated by Shaddad ibn Aws, Tirmidhi</span>
               </p>
 
               <p>
@@ -371,9 +371,9 @@ export default function OnboardingClient() {
       );
     }
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--bg-main)" }}>
+      <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--surface-bg)" }}>
         <div className="w-full max-w-lg">
-          <div className="rounded-2xl p-8 md:p-10 space-y-6" style={{ background: "var(--card-bg)", border: "1px solid var(--border)" }}>
+          <div className="rounded-2xl p-8 md:p-10 space-y-6" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
             <div className="space-y-1">
               <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--text-tertiary)" }}>
                 Step 2 of 2
@@ -397,7 +397,7 @@ export default function OnboardingClient() {
                     onClick={() => toggleCategory(cat.id)}
                     className="w-full flex items-center justify-between rounded-xl px-4 py-3 text-left transition-all"
                     style={{
-                      background: isActive ? "var(--accent-light)" : "var(--bg-main)",
+                      background: isActive ? "var(--accent-light)" : "var(--surface-bg)",
                       border: isActive ? "1px solid var(--accent)" : "1px solid var(--border)",
                     }}
                   >
@@ -435,7 +435,7 @@ export default function OnboardingClient() {
               <button
                 onClick={() => setScreen("questions")}
                 className="flex-1 py-2.5 rounded-xl text-sm"
-                style={{ background: "var(--bg-main)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
+                style={{ background: "var(--surface-bg)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
               >
                 Back
               </button>
@@ -458,9 +458,9 @@ export default function OnboardingClient() {
   if (screen === "result") {
     const focusCats = CATEGORIES.filter((c) => savedCategories.includes(c.id));
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--bg-main)" }}>
+      <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--surface-bg)" }}>
         <div className="w-full max-w-lg">
-          <div className="rounded-2xl p-8 md:p-10 space-y-6" style={{ background: "var(--card-bg)", border: "1px solid var(--border)" }}>
+          <div className="rounded-2xl p-8 md:p-10 space-y-6" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
 
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
@@ -482,7 +482,7 @@ export default function OnboardingClient() {
                 <div
                   key={cat.id}
                   className="flex items-center gap-3 rounded-xl px-4 py-3"
-                  style={{ background: "var(--bg-main)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--surface-bg)", border: "1px solid var(--border)" }}
                 >
                   <span className="text-sm font-medium w-5 text-center" style={{ color: "var(--text-tertiary)" }}>
                     {i + 1}
@@ -499,7 +499,7 @@ export default function OnboardingClient() {
             {/* AI-generated focus plan */}
             <div
               className="rounded-xl p-4 space-y-2"
-              style={{ background: "var(--bg-main)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--surface-bg)", border: "1px solid var(--border)" }}
             >
               <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--text-tertiary)" }}>
                 Your personal direction
@@ -521,7 +521,7 @@ export default function OnboardingClient() {
               )}
             </div>
 
-            <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
+            <p className="text-xs text-center" style={{ color: "var(--text-tertiary)" }}>
               You can retake this assessment anytime from Preferences.
             </p>
 
@@ -541,10 +541,10 @@ export default function OnboardingClient() {
   // ── Saving screen ─────────────────────────────────────────────────────────
   if (screen === "saving") {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-main)" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--surface-bg)" }}>
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>Preparing your personal plan…</p>
+          <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Preparing your personal plan…</p>
         </div>
       </div>
     );
@@ -552,12 +552,12 @@ export default function OnboardingClient() {
 
   // ── Questions screen ──────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--bg-main)" }}>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "var(--surface-bg)" }}>
       <div className="w-full max-w-lg">
 
         {/* Progress */}
         <div className="mb-6">
-          <div className="flex justify-between text-xs mb-2" style={{ color: "var(--text-muted)" }}>
+          <div className="flex justify-between text-xs mb-2" style={{ color: "var(--text-tertiary)" }}>
             <span>Question {currentIndex + 1} of {QUESTIONS.length}</span>
             <span>{Math.round(((currentIndex + 1) / QUESTIONS.length) * 100)}%</span>
           </div>
@@ -569,7 +569,7 @@ export default function OnboardingClient() {
           </div>
         </div>
 
-        <div className="rounded-2xl p-8" style={{ background: "var(--card-bg)", border: "1px solid var(--border)" }}>
+        <div className="rounded-2xl p-8" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
           <SliderQuestion
             question={currentQuestion}
             value={sliderValues[currentQuestion.id]}
@@ -588,7 +588,7 @@ export default function OnboardingClient() {
             <button
               onClick={handleBack}
               className="flex-1 py-2.5 rounded-xl text-sm font-medium"
-              style={{ background: "var(--bg-main)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--surface-bg)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
             >
               Back
             </button>

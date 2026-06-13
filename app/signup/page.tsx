@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import Disclaimer from "@/components/Disclaimer";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -41,17 +42,17 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--bg-main)" }}>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--surface-bg)" }}>
       <div className="w-full max-w-sm">
         {/* Logo / Brand */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-serif mb-1" style={{ color: "var(--text-primary)" }}>إنابة</h1>
-          <p className="text-sm tracking-widest uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.2em" }}>Inābah</p>
-          <p className="mt-3 text-sm" style={{ color: "var(--text-muted)" }}>Turning back to Allah</p>
+          <p className="text-sm tracking-widest uppercase" style={{ color: "var(--text-tertiary)", letterSpacing: "0.2em" }}>Inābah</p>
+          <p className="mt-3 text-sm" style={{ color: "var(--text-tertiary)" }}>Turning back to Allah</p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl p-8" style={{ background: "var(--card-bg)", border: "1px solid var(--border)" }}>
+        <div className="rounded-2xl p-8" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
           <h2 className="text-lg font-semibold mb-6" style={{ color: "var(--text-primary)" }}>Create account</h2>
 
           <form onSubmit={handleSignup} className="space-y-4">
@@ -65,7 +66,7 @@ export default function SignupPage() {
                 autoComplete="email"
                 className="w-full rounded-lg px-4 py-2.5 text-sm outline-none"
                 style={{
-                  background: "var(--bg-main)",
+                  background: "var(--surface-bg)",
                   border: "1px solid var(--border)",
                   color: "var(--text-primary)",
                 }}
@@ -82,7 +83,7 @@ export default function SignupPage() {
                 autoComplete="new-password"
                 className="w-full rounded-lg px-4 py-2.5 text-sm outline-none"
                 style={{
-                  background: "var(--bg-main)",
+                  background: "var(--surface-bg)",
                   border: "1px solid var(--border)",
                   color: "var(--text-primary)",
                 }}
@@ -99,7 +100,7 @@ export default function SignupPage() {
                 autoComplete="new-password"
                 className="w-full rounded-lg px-4 py-2.5 text-sm outline-none"
                 style={{
-                  background: "var(--bg-main)",
+                  background: "var(--surface-bg)",
                   border: "1px solid var(--border)",
                   color: "var(--text-primary)",
                 }}
@@ -123,12 +124,14 @@ export default function SignupPage() {
           </form>
         </div>
 
-        <p className="text-center mt-6 text-sm" style={{ color: "var(--text-muted)" }}>
+        <p className="text-center mt-6 text-sm" style={{ color: "var(--text-tertiary)" }}>
           Already have an account?{" "}
           <Link href="/login" className="underline" style={{ color: "var(--accent)" }}>
             Sign in
           </Link>
         </p>
+
+        <Disclaimer className="text-center mt-6 text-xs leading-relaxed" />
       </div>
     </div>
   );
