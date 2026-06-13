@@ -33,7 +33,9 @@ interface MuhasabahAppProps {
   targetStation?: NafsStation;
 }
 
-export default function MuhasabahApp({ onComplete, autoStart, simulate, targetStation }: MuhasabahAppProps) {
+// `onComplete` stays in the props interface for API compatibility, but
+// completion navigation is handled internally via the router.
+export default function MuhasabahApp({ autoStart, simulate, targetStation }: MuhasabahAppProps) {
   const router = useRouter();
   const [screen, setScreen] = useState<Screen>("welcome");
   const [visible, setVisible] = useState(true);

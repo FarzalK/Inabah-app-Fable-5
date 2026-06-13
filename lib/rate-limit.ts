@@ -20,9 +20,9 @@ export interface RateLimitResult {
 /**
  * Checks and increments the per-user, per-minute call count for an endpoint.
  *
- * Uses a 1-minute tumbling window keyed on (user_id, endpoint, window_start).
- * Read-then-write is intentionally non-atomic — a small race is acceptable
- * for rate limiting; the worst case is a single extra request slipping through.
+ * Delegates to the `increment_rate_limit` Postgres function, which performs
+ * the check-and-increment as a single atomic INSERT ... ON CONFLICT, so
+ * concurrent requests cannot slip past the limit.
  */
 export async function checkRateLimit(endpoint: string): Promise<RateLimitResult> {
   const limit = ENDPOINT_LIMITS[endpoint] ?? DEFAULT_LIMIT;
@@ -34,42 +34,20 @@ export async function checkRateLimit(endpoint: string): Promise<RateLimitResult>
     return { allowed: false, remaining: 0, userId: null };
   }
 
-  // Floor timestamp to the current minute
-  const windowStart = new Date();
-  windowStart.setSeconds(0, 0);
-  const windowKey = windowStart.toISOString();
+  const { data: count, error } = await supabase.rpc("increment_rate_limit", {
+    p_endpoint: endpoint,
+    p_limit: limit,
+  });
 
-  // Read current count for this window
-  const { data: existing } = await supabase
-    .from("api_rate_limits")
-    .select("call_count")
-    .eq("user_id", user.id)
-    .eq("endpoint", endpoint)
-    .eq("window_start", windowKey)
-    .single();
-
-  const currentCount = existing?.call_count ?? 0;
-
-  if (currentCount >= limit) {
+  // Fail closed on unexpected DB errors: an AI endpoint that cannot verify
+  // its budget should not spend it.
+  if (error || count === null || count === -1) {
     return { allowed: false, remaining: 0, userId: user.id };
   }
 
-  // Increment (or insert if first call in this window)
-  await supabase
-    .from("api_rate_limits")
-    .upsert(
-      {
-        user_id: user.id,
-        endpoint,
-        window_start: windowKey,
-        call_count: currentCount + 1,
-      },
-      { onConflict: "user_id,endpoint,window_start" }
-    );
-
   return {
     allowed: true,
-    remaining: limit - (currentCount + 1),
+    remaining: Math.max(0, limit - count),
     userId: user.id,
   };
 }

@@ -40,12 +40,14 @@ export default function SessionScreen({ name, durationMinutes, breathingEnabled,
     return () => clearTimeout(t);
   }, [secondsLeft, paused, onComplete]);
 
-  const scheduleWhisper = useCallback(() => {
+  // Named function expression so the recursive self-reference resolves to the
+  // function's own binding rather than the not-yet-declared const.
+  const scheduleWhisper = useCallback(function schedule() {
     whisperTimer.current = setTimeout(() => {
       const w = WHISPERS[whisperIndex.current % WHISPERS.length];
       whisperIndex.current++;
       setWhisper(w);
-      setTimeout(() => { setWhisper(null); scheduleWhisper(); }, 8000);
+      setTimeout(() => { setWhisper(null); schedule(); }, 8000);
     }, 150000);
   }, []);
 

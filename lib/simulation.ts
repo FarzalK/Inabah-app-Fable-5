@@ -3,7 +3,6 @@ import type { MuraqabahSession, HeartState } from "@/lib/muraqabah-storage";
 import { CATEGORIES } from "@/lib/data";
 import { ASMA_AL_HUSNA } from "@/lib/asma";
 
-const HEART_RATINGS: HeartRating[] = ["Heedless", "Struggling", "Striving", "Present", "Mindful"];
 const NAFS_STATIONS: NafsStation[] = ["Ammārah", "Lawwāmah", "Mulhamah", "Mutma'innah"];
 const HEART_STATES: HeartState[] = ["Present", "Distracted", "Restless", "Peaceful", "Tearful", "Numb"];
 

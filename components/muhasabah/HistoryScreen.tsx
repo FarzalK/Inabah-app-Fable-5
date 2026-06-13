@@ -118,7 +118,7 @@ export default function HistoryScreen({ onBack }: HistoryScreenProps) {
                         {session.resolution && (
                           <>
                             <Label>Resolution</Label>
-                            <p className="text-sm italic leading-relaxed" style={{ color: "var(--text-secondary)" }}>"{session.resolution}"</p>
+                            <p className="text-sm italic leading-relaxed" style={{ color: "var(--text-secondary)" }}>&ldquo;{session.resolution}&rdquo;</p>
                           </>
                         )}
                       </div>
@@ -171,7 +171,7 @@ export default function HistoryScreen({ onBack }: HistoryScreenProps) {
                             </div>
                             <div className="border-l-2 pl-3 py-1.5 text-[13px] italic rounded-r mb-4"
                               style={{ borderColor: "var(--terracotta)", background: "var(--terracotta-light)", color: "var(--text-secondary)" }}>
-                              "{nameEntry.ayah}" — {nameEntry.ayahRef}
+                              &ldquo;{nameEntry.ayah}&rdquo; — {nameEntry.ayahRef}
                             </div>
                           </>
                         )}
@@ -195,7 +195,7 @@ export default function HistoryScreen({ onBack }: HistoryScreenProps) {
                         {session.note && (
                           <>
                             <Label>Note</Label>
-                            <p className="text-sm italic leading-relaxed" style={{ color: "var(--text-secondary)" }}>"{session.note}"</p>
+                            <p className="text-sm italic leading-relaxed" style={{ color: "var(--text-secondary)" }}>&ldquo;{session.note}&rdquo;</p>
                           </>
                         )}
                       </div>

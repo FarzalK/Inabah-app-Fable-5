@@ -165,7 +165,7 @@ function SliderQuestion({
       {/* Optional text */}
       <div>
         <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>
-          Anything you'd like to add? <span className="italic">(optional)</span>
+          Anything you&apos;d like to add? <span className="italic">(optional)</span>
         </label>
         <textarea
           value={text}

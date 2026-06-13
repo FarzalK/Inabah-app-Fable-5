@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getLastResolution, getDraft } from "@/lib/storage";
 
@@ -24,22 +24,21 @@ function formatDraftAge(dateStr: string): string {
 
 export default function WelcomeScreen({ onStart, hasDraft, onResume }: WelcomeScreenProps) {
   const router = useRouter();
-  const [lastResolution, setLastResolution] = useState<{ text: string; date: string } | null>(null);
-  const [draftAge, setDraftAge] = useState<string | null>(null);
-  const [ack, setAck] = useState<ResolutionAck | null>(null);
-
-  useEffect(() => {
-    setLastResolution(getLastResolution());
-
+  // This screen only renders client-side (the session page is gated behind a
+  // Suspense boundary on useSearchParams), so localStorage-backed values can
+  // be read once in lazy initializers instead of an effect.
+  const [lastResolution] = useState<{ text: string; date: string } | null>(() => getLastResolution());
+  const [draftAge] = useState<string | null>(() => {
     const draft = getDraft();
-    if (draft?.date) setDraftAge(formatDraftAge(draft.date));
-
-    // Restore any existing ack from this browser session
+    return draft?.date ? formatDraftAge(draft.date) : null;
+  });
+  const [ack, setAck] = useState<ResolutionAck | null>(() => {
     try {
-      const stored = localStorage.getItem("muhasabah_resolution_ack") as ResolutionAck | null;
-      if (stored) setAck(stored);
-    } catch { /* noop */ }
-  }, []);
+      return localStorage.getItem("muhasabah_resolution_ack") as ResolutionAck | null;
+    } catch {
+      return null;
+    }
+  });
 
   function handleAck(value: ResolutionAck) {
     setAck(value);

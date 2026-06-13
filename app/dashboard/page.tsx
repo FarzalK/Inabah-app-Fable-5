@@ -62,6 +62,11 @@ export default function DashboardPage() {
       setSessions(sessionsData);
       setMuraqabahSessions(muraqabahData);
 
+      // Milestone check belongs to the data load, not a separate effect —
+      // it only changes when a new session list arrives.
+      const loadedScore = computeSpiritualScore(sessionsData);
+      setMilestone(getActiveMilestone(loadedScore.totalSessions, loadedScore.streak));
+
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
@@ -89,13 +94,6 @@ export default function DashboardPage() {
     }
     return s;
   }, [muraqabahSessions]);
-
-  // Check milestone after data loads
-  useEffect(() => {
-    if (!mounted) return;
-    const m = getActiveMilestone(score.totalSessions, score.streak);
-    setMilestone(m);
-  }, [mounted, score.totalSessions, score.streak]);
 
   if (!mounted) {
     return (

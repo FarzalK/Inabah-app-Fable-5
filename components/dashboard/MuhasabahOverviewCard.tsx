@@ -16,20 +16,6 @@ export default function MuhasabahOverviewCard({ sessions }: { sessions: SavedSes
   const [chartType, setChartType] = useState<ChartType>("line");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  if (sessions.length === 0) {
-    return (
-      <div className="rounded-xl p-4 flex flex-col" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
-        <Header chartType={chartType} dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} setChartType={setChartType} />
-        <p className="text-[12px] leading-relaxed mt-3" style={{ color: "var(--text-tertiary)" }}>
-          No sessions yet. Begin your first Muhāsabah.
-        </p>
-      </div>
-    );
-  }
-
-  const last = sessions[0];
-  const lastDate = new Date(last.date).toLocaleDateString("en-CA", { month: "short", day: "numeric" });
-
   // SVG layout constants — stable, no need to memoize
   const W = 260, H = 120;
   const PL = 52;
@@ -41,7 +27,7 @@ export default function MuhasabahOverviewCard({ sessions }: { sessions: SavedSes
 
   type Pt = { x: number; y: number; score: number; rating: string; date: string };
 
-  const { catIds, catData, xLabelIndices, barGroupW, barW, chartSessions } = useMemo(() => {
+  const { catIds, catData, xLabelIndices, barW, chartSessions } = useMemo(() => {
     const ids = CATEGORIES.filter((c) =>
       sessions.some((s) => s.summary.categoryRatings[c.id] !== undefined)
     ).map((c) => c.id);
@@ -92,6 +78,21 @@ export default function MuhasabahOverviewCard({ sessions }: { sessions: SavedSes
   }, [sessions]);
 
   const N = chartSessions.length;
+
+  // Early return must come after the hooks above so they run unconditionally.
+  if (sessions.length === 0) {
+    return (
+      <div className="rounded-xl p-4 flex flex-col" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
+        <Header chartType={chartType} dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} setChartType={setChartType} />
+        <p className="text-[12px] leading-relaxed mt-3" style={{ color: "var(--text-tertiary)" }}>
+          No sessions yet. Begin your first Muhāsabah.
+        </p>
+      </div>
+    );
+  }
+
+  const last = sessions[0];
+  const lastDate = new Date(last.date).toLocaleDateString("en-CA", { month: "short", day: "numeric" });
 
   function xPos(i: number) {
     if (N <= 1) return PL + chartW / 2;

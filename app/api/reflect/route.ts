@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AI_SYSTEM_PROMPT } from "@/lib/data";
+import { z } from "zod";
+import { AI_SYSTEM_PROMPT, CATEGORIES, HEART_RATINGS, NAFS_STATIONS } from "@/lib/data";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { callClaude, parseJsonResponse, ClaudeError } from "@/lib/anthropic";
+import type { HeartRating, NafsStation } from "@/types";
+
+const CATEGORY_IDS = CATEGORIES.map((c) => c.id) as [string, ...string[]];
+
+const RequestSchema = z.object({
+  answerSummary: z.string().min(1).max(20_000),
+  categoryIds: z.array(z.enum(CATEGORY_IDS)).min(1).max(CATEGORIES.length),
+});
+
+const ResponseSchema = z.object({
+  categoryRatings: z.record(
+    z.string(),
+    z.enum(HEART_RATINGS as [HeartRating, ...HeartRating[]])
+  ),
+  nafsRating: z.enum(NAFS_STATIONS as [NafsStation, ...NafsStation[]]),
+  reflection: z.string(),
+  pattern: z.string(),
+  closingAyah: z.string(),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,76 +33,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const { answerSummary, categoryIds } = body ?? {};
-    if (typeof answerSummary !== "string" || !Array.isArray(categoryIds)) {
+    const parsed = RequestSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
+    const { answerSummary, categoryIds } = parsed.data;
 
-    const apiKey = process.env.ANTHROPIC_API_KEY || "";
-
-    if (!apiKey || apiKey === "sk-ant-your-key-here") {
-      console.error("ANTHROPIC_API_KEY is not set or is still the placeholder value");
-      return NextResponse.json(
-        { error: "ANTHROPIC_API_KEY not configured in .env.local" },
-        { status: 500 }
-      );
-    }
-
-    const systemPrompt = AI_SYSTEM_PROMPT + `\nCategory IDs: ${categoryIds.join(", ")}`;
-
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: [
-          {
-            role: "user",
-            content: `Here are my reflections for today:\n\n${answerSummary}`,
-          },
-        ],
-      }),
+    const text = await callClaude({
+      system: AI_SYSTEM_PROMPT + `\nCategory IDs: ${categoryIds.join(", ")}`,
+      userMessage: `Here are my reflections for today:\n\n${answerSummary}`,
+      maxTokens: 1000,
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      console.error("Anthropic API error:", err);
+    const summary = ResponseSchema.safeParse(parseJsonResponse(text));
+    if (!summary.success) {
+      // Shape mismatch from the model. Do not log the response itself —
+      // it is derived from user content.
       return NextResponse.json(
-        { error: err.error?.message || "Anthropic API error" },
-        { status: response.status }
+        { error: "AI response had an unexpected shape. Please try again." },
+        { status: 502 }
       );
     }
 
-    const data = await response.json();
-    const text = data.content
-      .map((b: { type: string; text?: string }) => b.text || "")
-      .join("");
-
-    // Robustly extract JSON — find the first { and last } to handle
-    // any preamble, trailing text, or imperfect markdown fence stripping
-    let parsed;
-    try {
-      const jsonStart = text.indexOf("{");
-      const jsonEnd = text.lastIndexOf("}");
-      if (jsonStart === -1 || jsonEnd === -1) throw new Error("No JSON object found in response");
-      const jsonStr = text.slice(jsonStart, jsonEnd + 1);
-      parsed = JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error("JSON parse failed. Raw text was:", text);
-      console.error("Parse error:", parseError);
-      return NextResponse.json({ error: "Failed to parse AI response as JSON" }, { status: 500 });
-    }
-
-    return NextResponse.json(parsed);
+    return NextResponse.json(summary.data);
   } catch (error) {
-    console.error("Reflect API error:", error);
+    if (error instanceof ClaudeError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    console.error("Reflect API error:", error instanceof Error ? error.name : "unknown");
     return NextResponse.json({ error: "Failed to generate reflection" }, { status: 500 });
   }
 }

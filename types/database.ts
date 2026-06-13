@@ -173,7 +173,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_rate_limit: {
+        Args: { p_endpoint: string; p_limit: number }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

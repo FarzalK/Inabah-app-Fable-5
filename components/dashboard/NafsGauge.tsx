@@ -1,6 +1,5 @@
 "use client";
 
-import type { NafsStation } from "@/types";
 import type { SpiritualScore } from "@/lib/scoring";
 import { getNafsDescription, getNafsGateMessage } from "@/lib/scoring";
 import { NAFS_STATIONS as STATIONS, STATION_COLORS } from "@/lib/data";

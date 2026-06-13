@@ -1,30 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { SpiritualScore } from "@/lib/scoring";
+import { z } from "zod";
+import { NAFS_STATIONS } from "@/lib/data";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { callClaude, parseJsonResponse, ClaudeError } from "@/lib/anthropic";
+import type { NafsStation } from "@/types";
 
-export async function POST(req: NextRequest) {
-  try {
-    const rateLimit = await checkRateLimit("/api/summary");
-    if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { error: "Too many requests. Please wait a moment before trying again." },
-        { status: 429 }
-      );
-    }
+const RequestSchema = z.object({
+  score: z.object({
+    nafsStation: z.enum(NAFS_STATIONS as [NafsStation, ...NafsStation[]]),
+    nafsScore: z.number().min(0).max(4),
+    streak: z.number().int().min(0),
+    consistencyScore: z.number().min(0).max(100),
+    trend: z.enum(["improving", "steady", "declining"]),
+    categoryAverages: z.record(z.string(), z.number()),
+  }),
+  recentReflections: z.array(z.string().max(2_000)).max(20),
+});
 
-    const body = await req.json();
-    const { score, recentReflections } = body ?? {};
-    if (!score || typeof score.nafsStation !== "string" || !Array.isArray(recentReflections)) {
-      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
-    }
-    const typedScore = score as SpiritualScore;
+const ResponseSchema = z.object({
+  summary: z.string(),
+  focus: z.string(),
+  scholarQuote: z.string(),
+});
 
-    const apiKey = process.env.ANTHROPIC_API_KEY || "";
-    if (!apiKey || apiKey === "sk-ant-your-key-here") {
-      return NextResponse.json({ error: "API key not configured" }, { status: 500 });
-    }
-
-    const systemPrompt = `You are a compassionate Islamic spiritual guide reflecting on a Muslim's spiritual progress based on their Muhāsabah session data.
+const SYSTEM_PROMPT = `You are a compassionate Islamic spiritual guide reflecting on a Muslim's spiritual progress based on their Muhāsabah session data.
 
 Your tone is honest but merciful. Do not be generic — speak directly to their station, patterns, and specific struggles.
 
@@ -42,44 +41,50 @@ Return ONLY valid JSON, no preamble or markdown:
   "scholarQuote": "A Quranic ayah or authentic hadith directly relevant to their current station, or a scholar quote only if more directly applicable"
 }`;
 
-    const userMsg = `Current nafs station: ${typedScore.nafsStation}
-Overall score: ${typedScore.nafsScore.toFixed(2)} / 4
-Streak: ${typedScore.streak} days
-Sessions in last 30 days: ${typedScore.consistencyScore}% consistency
-Trend: ${typedScore.trend}
-Category averages (0-4 scale): ${JSON.stringify(typedScore.categoryAverages)}
-Recent AI reflections from sessions: ${(recentReflections as string[]).slice(0, 3).join(" | ")}`;
-
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 600,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userMsg }],
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.json();
-      return NextResponse.json({ error: err.error?.message || "Anthropic API error" }, { status: response.status });
+export async function POST(req: NextRequest) {
+  try {
+    const rateLimit = await checkRateLimit("/api/summary");
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment before trying again." },
+        { status: 429 }
+      );
     }
 
-    const data = await response.json();
-    const text = data.content.map((b: { text?: string }) => b.text || "").join("");
+    const parsed = RequestSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+    const { score, recentReflections } = parsed.data;
 
-    const jsonStart = text.indexOf("{");
-    const jsonEnd = text.lastIndexOf("}");
-    if (jsonStart === -1 || jsonEnd === -1) throw new Error("No JSON in response");
-    const parsed = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
-    return NextResponse.json(parsed);
-  } catch (e) {
-    console.error("Dashboard summary error:", e);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    const userMsg = `Current nafs station: ${score.nafsStation}
+Overall score: ${score.nafsScore.toFixed(2)} / 4
+Streak: ${score.streak} days
+Sessions in last 30 days: ${score.consistencyScore}% consistency
+Trend: ${score.trend}
+Category averages (0-4 scale): ${JSON.stringify(score.categoryAverages)}
+Recent AI reflections from sessions: ${recentReflections.slice(0, 3).join(" | ")}`;
+
+    const text = await callClaude({
+      system: SYSTEM_PROMPT,
+      userMessage: userMsg,
+      maxTokens: 600,
+    });
+
+    const summary = ResponseSchema.safeParse(parseJsonResponse(text));
+    if (!summary.success) {
+      return NextResponse.json(
+        { error: "AI response had an unexpected shape. Please try again." },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json(summary.data);
+  } catch (error) {
+    if (error instanceof ClaudeError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    console.error("Dashboard summary error:", error instanceof Error ? error.name : "unknown");
+    return NextResponse.json({ error: "Failed to generate summary" }, { status: 500 });
   }
 }

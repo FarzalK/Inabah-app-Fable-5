@@ -25,7 +25,7 @@ export default function ContemplationScreen({ name, onBegin, onBack }: Contempla
       {/* Ayah */}
       <div className="border-l-2 pl-4 py-2 mb-5 rounded-r-lg text-[13px] italic leading-relaxed"
         style={{ borderColor: "var(--accent)", background: "var(--accent-light)", color: "var(--text-secondary)" }}>
-        "{name.ayah}"
+        &ldquo;{name.ayah}&rdquo;
         <p className="text-[11px] mt-1 not-italic" style={{ color: "var(--text-tertiary)" }}>— {name.ayahRef}</p>
       </div>
 

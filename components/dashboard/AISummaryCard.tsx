@@ -12,8 +12,11 @@ interface AISummaryCardProps {
 }
 
 export default function AISummaryCard({ score, sessions }: AISummaryCardProps) {
-  const [data, setData] = useState<SummaryCache | null>(null);
-  const [loading, setLoading] = useState(true);
+  // The card is only mounted client-side (the dashboard gates on `mounted`),
+  // so the cache can be read directly in the lazy initializers — no
+  // effect-then-setState round trip.
+  const [data, setData] = useState<SummaryCache | null>(() => getSummaryCache());
+  const [loading, setLoading] = useState(() => sessions.length > 0 && !getSummaryCache());
 
   // Re-run when the most recent session changes (i.e. after a new session is saved
   // and the cache has been cleared). Using sessions[0]?.id avoids re-firing on
@@ -21,11 +24,9 @@ export default function AISummaryCard({ score, sessions }: AISummaryCardProps) {
   const latestSessionId = sessions[0]?.id ?? "";
 
   useEffect(() => {
-    if (sessions.length === 0) { setLoading(false); return; }
-    const cached = getSummaryCache();
-    if (cached) { setData(cached); setLoading(false); return; }
+    if (sessions.length === 0 || getSummaryCache()) return;
 
-    setLoading(true);
+    let cancelled = false;
     const recentReflections = sessions.slice(0, 3).map((s) => s.summary.reflection).filter(Boolean);
     fetch("/api/summary", {
       method: "POST",
@@ -34,14 +35,15 @@ export default function AISummaryCard({ score, sessions }: AISummaryCardProps) {
     })
       .then((r) => r.json())
       .then((d) => {
-        if (!d.error) {
-          const cache: SummaryCache = { summary: d.summary, focus: d.focus, scholarQuote: d.scholarQuote, generatedAfterSessionId: latestSessionId };
-          setSummaryCache(cache);
-          setData(cache);
-        }
+        if (cancelled || d.error) return;
+        const cache: SummaryCache = { summary: d.summary, focus: d.focus, scholarQuote: d.scholarQuote, generatedAfterSessionId: latestSessionId };
+        setSummaryCache(cache);
+        setData(cache);
       })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => { if (!cancelled) setLoading(false); });
+
+    return () => { cancelled = true; };
   }, [latestSessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
