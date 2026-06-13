@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+:root {
+  /* ── Palette from user ── */
+  --tea-green:    #CCD5AE;
+  --beige:        #E9EDC9;
+  --cornsilk:     #FEFAE0;
+  --papaya-whip:  #FAEDCD;
+  --bronze:       #D4A373;
+
+  /* ── Semantic tokens — light mode ── */
+  --accent:           #8A9E6A;   /* darkened tea green — readable on light bg */
+  --accent-hover:     #7A8E5A;
+  --accent-light:     #EDF0DC;   /* tint of beige */
+  --accent-dark:      #6A7E4A;
+
+  --terracotta:       #C08040;   /* darkened bronze for readability */
+  --terracotta-light: #FDF3E3;
+  --terracotta-hover: #B07030;
+
+  --sand:             #D4A373;   /* bronze as-is for decorative use */
+  --sand-light:       #FDF6EC;
+
+  /* ── Surfaces ── */
+  --surface-bg:       #FEFAE0;   /* cornsilk — page background */
+  --surface-card:     #FAEDCD;   /* papaya whip — cards */
+  --surface-card-alt: #F0E8C0;   /* slightly darker papaya for nested elements */
+  --border:           rgba(180, 150, 90, 0.18);
+  --border-mid:       rgba(160, 130, 70, 0.28);
+
+  /* ── Text ── */
+  --text-primary:     #2A2418;   /* very dark warm brown */
+  --text-secondary:   #5C5040;   /* medium warm brown */
+  --text-tertiary:    #9A8870;   /* muted warm brown */
+}
+
+.dark {
+  /* ── Dark mode counterparts — warm, not cold ── */
+  --accent:           #A0B878;   /* lighter sage for dark bg readability */
+  --accent-hover:     #B0C888;
+  --accent-light:     #1E2816;   /* very dark sage tint */
+  --accent-dark:      #C0D898;
+
+  --terracotta:       #C89858;   /* warm bronze, lightened for dark bg */
+  --terracotta-light: #28200E;
+  --terracotta-hover: #D8A868;
+
+  --sand:             #C8986A;
+  --sand-light:       #221A0E;
+
+  /* ── Surfaces ── */
+  --surface-bg:       #1C1A12;   /* very dark warm brown — not pure black */
+  --surface-card:     #25221A;   /* dark papaya-inspired */
+  --surface-card-alt: #2E2A1E;   /* slightly lighter warm dark */
+  --border:           rgba(180, 150, 80, 0.12);
+  --border-mid:       rgba(180, 150, 80, 0.22);
+
+  /* ── Text ── */
+  --text-primary:     #F2EACC;   /* warm off-white, cornsilk-inspired */
+  --text-secondary:   #C8B890;   /* warm medium */
+  --text-tertiary:    #806850;   /* muted warm */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.arabic {
+  font-family: Georgia, "Times New Roman", serif;
+  direction: rtl;
+}
+
+/* ── Focus states — visible for keyboard/assistive tech, hidden for mouse ── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Touch targets — ensure minimum 44×44px tap area ── */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Pinch-to-zoom mitigation ──────────────────────────────────────
+   Eliminate the 300ms tap delay and accidental double-tap zoom on
+   interactive elements. Pinch-zoom and text scaling stay available
+   for accessibility — we only disable double-tap zoom on buttons.
+*/
+button, a, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
+/* ── Responsive page container ─────────────────────────────────────
+   Mobile-first: narrow column for reading. Widens through tablet to
+   desktop so content uses the available width without becoming an
+   unreadable text wall on wide screens.
+*/
+.app-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 640px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 768px) {
+  .app-container { max-width: 720px; padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .app-container { max-width: 960px; }
+}
+@media (min-width: 1280px) {
+  .app-container { max-width: 1120px; }
+}
+
+/* Reading-focused container: stays narrow at every breakpoint to keep
+   line length comfortable for prose (Muhāsabah questions, Murāqabah
+   contemplation text, history entries, etc.). */
+.app-container-reading {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 640px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 768px) {
+  .app-container-reading { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+/* ── Label minimum — never below 10px ── */
+.label-xs {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { animation: spin 0.8s linear infinite; }
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeSlideUp 0.3s ease forwards; }
